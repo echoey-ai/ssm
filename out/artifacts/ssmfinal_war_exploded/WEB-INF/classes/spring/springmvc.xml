@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- 设置扫描组件的包 -->
+    <!--    规定只能扫描的注解-->
+    <context:component-scan base-package="com.atguigu" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!-- 配置视图解析器 -->
+    <bean id="internalResourceViewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--文件上传解析器-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"></property>
+        <property name="maxUploadSize" value="1024000"></property>
+    </bean>
+
+    <!--    i18n-->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="i18n"></property>
+    </bean>
+
+    <!--    快捷转发-->
+    <mvc:view-controller path="to" view-name="test"/>
+
+    <!-- 配置视图解析器：按照bean的名称查找视图 -->
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <property name="order" value="100"></property>
+    </bean>
+
+    <!--拦截器-->
+    <mvc:interceptors>
+        <!-- 声明自定义拦截器 -->
+        <!--            <bean id="firstHandlerInterceptor"
+                          class="com.atguigu.interceptors.FirstHandlerInterceptor"></bean>-->
+        <!-- 配置拦截器引用 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/ajax"/>
+            <!-- <mvc:exclude-mapping path="/empList"/> -->
+            <bean id="secondHandlerInterceptor"
+                  class="com.atguigu.interceptors.SecondHandlerInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- 配置SimpleMappingExceptionResolver异常解析器 -->
+    <bean id="simpleMappingExceptionResolver"
+          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <!-- exceptionAttribute默认值(通过ModelAndView传递给页面)：
+        exception   ->  ${requestScope.exception}
+        public static final String DEFAULT_EXCEPTION_ATTRIBUTE = "exception";
+        -->
+        <property name="exceptionAttribute" value="exception"></property>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.lang.ArithmeticException">pages/error/error500</prop>
+            </props>
+        </property>
+    </bean>
+
+<!--扫描静态-->
+    <mvc:default-servlet-handler/>
+<!--    扫描动态-->
+    <mvc:annotation-driven/>
+
+
+
+
+
+
+</beans>
+
+
+
